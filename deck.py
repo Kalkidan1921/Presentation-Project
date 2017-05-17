@@ -22,9 +22,8 @@ allCards = ("Ace of Diamonds", "Ace of Spades", "Ace of Hearts",
             "King of Clubs")
 
 games = {"blackjack": ["hit", "hold"], "texas hold 'em": [""], "go fish": [""]}
-
-S_INIT = 0
-S_BLACK = 1
+S_IDLE = 0
+S_BLACKJACK = 1
 S_TEXAS = 2
 S_FISH = 3
 S_IDLE = 4
@@ -59,33 +58,46 @@ class Deck:
 
 class DealerBot:
     def __init__(self):
-        self.state = S_INIT
+        self.state = S_IDLE
 
     def interMsg(self, msg):
-        response = ""
-        if self.state is S_INIT:
-            self.deck = Deck()
-            response = """\n[Dealerbot] Hello, my name is Dealerbot. Which game would you like to play?>\n
+        recipients, response = "all", ""
+        if msg == "play":
+            response = """
+[Dealerbot] Hello, my name is Dealerbot. Which game would you like to play?>
 1. blackjack
 2. texas hold 'em
 3. go fish"""
+
             self.state = S_CHOOSING
 
-        elif self.state is S_CHOOSING:
+        if self.state is S_CHOOSING:
             if msg == "1":
                 response = "Welcome to Blackjack. 1 to play, 2 for rules."
-                self.state = S_BLACK
+                self.state = S_BLACKJACK
             elif msg == "2":
-                response = "Welcome to Texas Hold 'em.  1 to play, 2 for rules."
+                response = "Welcome to Texas Hold em.  1 to play, 2 for rules."
                 self.state = S_TEXAS
             elif msg == "3":
                 response = "Welcome to Go Fish.  1 to play, 2 for rules."
                 self.state = S_FISH
 
+        elif self.state is S_BLACKJACK:
+            if msg == "1":
+                response = "Play"
+            elif msg == "2":
+                response = "Rules"
+            elif msg == "hit":
+                response = "hit"
+
         if (msg == "stop"):
-            response = "Thanks for playing!"
-            self.state = S_INIT
-        return response
+            recipients, response = "all", "Thanks for playing!"
+            self.state = S_IDLE
+
+        if response != "":
+            response = " \n" + response
+
+        return recipients, response
 
 
 def blackjack():

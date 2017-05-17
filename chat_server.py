@@ -115,37 +115,48 @@ class Server:
                 the_guys = self.group.list_me(from_name)
                 said = msg[1:]
                 said2 = text_proc(said, from_name)
-                print("said:", said)
-                print("said2:", said2)
 
                 msgcontent = msg.split("] ")[1]
-                inGame = False
-                response = ''
-
                 my_guys = the_guys[1:]
 
-                fullmessage = msg
-                recipients = 'all'
-                if msgcontent == "play" and inGame is False:
+                fullmessage = msg[:]
+                recipients, response = dealerBot.interMsg(msgcontent)
+
+                if response != "":
+                    hasResponse = True
+                else:
+                    hasResponse = False
+                """if msgcontent == "play" and inGame is False:
                     my_guys = the_guys[:]
-                    inGame = True
-                    recipients, fullmessage = dealerBot.interMsg(msgcontent)
+
+                    recipients, fullmessage = 'all', dealerBot.interMsg(
+                        msgcontent)
                 elif msgcontent == "stop" and inGame is True:
                     my_guys = the_guys[:]
                     inGame = False
                     recipients, fullmessage = dealerBot.interMsg(msgcontent)
                 elif inGame is True:
-                    recipients, response = dealerBot.interMsg(msgcontent)
+                    recipients, response = 'all', dealerBot.interMsg(
+                        msgcontent)
                     if response != "":
                         my_guys = the_guys[:]
-                        fullmessage += response
-                self.indices[from_name].add_msg_and_index(said2 + response)
+                        fullmessage += response"""
 
-                if (recipients == 'all'):
+                self.indices[from_name].add_msg_and_index(said2)
+
+                print(recipients)
+
+                if recipients == 'all':
                     for g in the_guys:
                         to_sock = self.logged_name2sock[g]
-                        self.indices[g].add_msg_and_index(said2)
-                        mysend(to_sock, fullmessage)
+                        if hasResponse:
+                            fullmessage += response
+                            if g == the_guys[0]:
+                                mysend(to_sock, response)
+                        if g != the_guys[0]:
+                            self.indices[g].add_msg_and_index(said2 + response)
+                            mysend(to_sock, fullmessage)
+
                 elif (recipients == 'private'):
                     # TODO: Find an individual's socket, then send 2 them.
 
